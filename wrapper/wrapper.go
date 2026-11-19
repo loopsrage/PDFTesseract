@@ -1,23 +1,32 @@
 package wrapper
 
 import (
-	"Tesseract/lib/httplib"
-	"Tesseract/lib/index"
-	"Tesseract/lib/measureTime"
 	"bytes"
+	"context"
 	"crypto/md5"
 	"fmt"
 	"io"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/loopsrage/gotools/lib/httplib"
+	"github.com/loopsrage/gotools/lib/index"
+	"github.com/loopsrage/gotools/lib/measureTime"
 )
 
 const StatusField = "Status"
 const ResponseField = "Response"
 const SeenField = "Seen"
 
-var mux = http.NewServeMux()
+type ctxKey struct{}
+
+type responseCarrier struct {
+	status   int
+	response []byte
+	set      bool
+}
+
 var seen = index.NewIndex()
 
 func Seen(hsh string) bool {
@@ -31,8 +40,22 @@ func Seen(hsh string) bool {
 }
 
 func WriteResponseHeaders(request *http.Request, status *int, response *[]byte) {
-	request.Header.Set(StatusField, strconv.Itoa(*status))
-	request.Header.Set(ResponseField, string(*response))
+	if c, ok := request.Context().Value(ctxKey{}).(*responseCarrier); ok && c != nil {
+		if status != nil {
+			c.status = *status
+		}
+		if response != nil {
+			c.response = *response
+		}
+		c.set = true
+		return
+	}
+	if status != nil {
+		request.Header.Set(StatusField, strconv.Itoa(*status))
+	}
+	if response != nil {
+		request.Header.Set(ResponseField, string(*response))
+	}
 }
 
 type HTTPWrapper struct {
@@ -51,24 +74,31 @@ func (h *HTTPWrapper) Serve(w http.ResponseWriter, r *http.Request) {
 	defer httplib.WriteCorsResponse(w, response, status)
 
 	body, _ := io.ReadAll(r.Body)
-	r.Body.Close()
+	_ = r.Body.Close()
 	r.Body = io.NopCloser(bytes.NewBuffer(body))
 
 	hsh := fmt.Sprintf("%x", md5.Sum(body))
-
 	if !Seen(hsh) {
-		seen.StoreInIndex("seen", hsh, struct{}{})
+		seen.StoreInIndex(SeenField, hsh, struct{}{})
 	}
 
-	h.wraps.ServeHTTP(w, r)
+	carrier := &responseCarrier{status: http.StatusOK}
+	rWithCarrier := r.WithContext(context.WithValue(r.Context(), ctxKey{}, carrier))
 
-	st, _ := strconv.ParseInt(r.Header.Get(StatusField), 10, 64)
-	*status = int(st)
-	*response = []byte(r.Header.Get(ResponseField))
+	h.wraps.ServeHTTP(w, rWithCarrier)
+
+	if carrier.set {
+		*status = carrier.status
+		*response = carrier.response
+		return
+	}
+
+	if st, err := strconv.ParseInt(rWithCarrier.Header.Get(StatusField), 10, 64); err == nil && st > 0 {
+		*status = int(st)
+	}
+	*response = []byte(rWithCarrier.Header.Get(ResponseField))
 }
 
 func NewHTTPWrapper(wraps http.HandlerFunc) *HTTPWrapper {
-	return &HTTPWrapper{
-		wraps: wraps,
-	}
+	return &HTTPWrapper{wraps: wraps}
 }

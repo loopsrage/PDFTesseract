@@ -1,39 +1,29 @@
 package pdf
 
 import (
-	"Tesseract/lib/configBase"
-	"Tesseract/lib/gen/nodes"
-	"Tesseract/lib/pdfpipeline/actionData"
-	"Tesseract/lib/pdfpipeline/pdfium"
-	"Tesseract/lib/pdfpipeline/pipeline"
-	"Tesseract/lib/reflectStruct"
-	"Tesseract/wrapper"
-	"context"
 	"encoding/json"
-	"fmt"
-	"io"
+	"errors"
 	"net/http"
-	"strconv"
-	"sync"
 
-	"github.com/google/uuid"
+	"Tesseract/handlers"
+	"Tesseract/wrapper"
+
+	"github.com/loopsrage/gotools/lib/docpipeline"
+	"github.com/loopsrage/gotools/lib/visionlib"
 )
 
-type DataWrapper struct {
-	Data []byte `json:"Data"`
-	Name string `json:"Name"`
-}
-
+// PDF serves /PDF requests by routing PDF uploads into the unified indexQueue pipeline.
 type PDF struct {
-	*configBase.FeatureController
-	pl *pipeline.Queues
+	engine *docpipeline.Engine
 }
 
-func (p *PDF) Source() string {
-	return "PDFTesseract"
+// NewPDF constructs a PDF endpoint handler backed by engine.
+func NewPDF(engine *docpipeline.Engine) *PDF {
+	return &PDF{engine: engine}
 }
 
-func (p *PDF) ServePDF(w http.ResponseWriter, r *http.Request) {
+// ServePDF parses a PDF upload, executes the indexQueue pipeline, and returns the persisted document summary.
+func (p *PDF) ServePDF(_ http.ResponseWriter, r *http.Request) {
 	var (
 		status   = new(int)
 		response = new([]byte)
@@ -41,69 +31,41 @@ func (p *PDF) ServePDF(w http.ResponseWriter, r *http.Request) {
 	*status = http.StatusOK
 	defer wrapper.WriteResponseHeaders(r, status, response)
 
-	wg := &sync.WaitGroup{}
-	var b []byte
-	b, err := io.ReadAll(r.Body)
+	req, err := handlers.ParseSubmitRequest(r)
 	if err != nil {
 		*status = http.StatusBadRequest
-		*response = []byte(err.Error())
+		b, _ := json.Marshal(map[string]string{"error": err.Error()})
+		*response = b
 		return
 	}
 
-	dataWrap := &DataWrapper{}
-	err = json.Unmarshal(b, &dataWrap)
+	kind, _, err := visionlib.DetectInputKind(req.Data, req.MimeType)
 	if err != nil {
 		*status = http.StatusBadRequest
-		*response = []byte(err.Error())
+		b, _ := json.Marshal(map[string]string{"error": err.Error()})
+		*response = b
+		return
+	}
+	if kind != visionlib.InputPDF {
+		*status = http.StatusBadRequest
+		b, _ := json.Marshal(map[string]string{"error": errors.New("expected PDF payload on /PDF").Error()})
+		*response = b
 		return
 	}
 
-	pc, err := pdfium.GetPageCount(dataWrap.Data)
+	res, err := p.engine.Process(r.Context(), req)
 	if err != nil {
 		*status = http.StatusBadRequest
-		*response = []byte(err.Error())
+		b, _ := json.Marshal(map[string]string{"error": err.Error()})
+		*response = b
 		return
 	}
 
-	rid, err := uuid.NewUUID()
+	b, err := json.Marshal(res)
 	if err != nil {
-		*status = http.StatusBadRequest
+		*status = http.StatusInternalServerError
 		*response = []byte(err.Error())
 		return
 	}
-	p.pl.Final.StoreResponse(rid.String(), make(chan interface{}, 1))
-	for i := 0; i < pc; i++ {
-		qd := nodes.NewQueueData(r.Context())
-		md, err := reflectStruct.Map(&actionData.ActionData{
-			Page:     i,
-			Name:     strconv.Itoa(i),
-			PDFbytes: dataWrap.Data,
-		})
-		if err != nil {
-			*status = http.StatusBadRequest
-			*response = []byte(err.Error())
-			return
-		}
-		qd.SetAttributes(md)
-		p.pl.PdfAction.SendSelf(qd)
-	}
-	wg.Wait()
-	result := <-p.pl.Final.LoadResponse("")
-	fmt.Println(result)
-	rd, err := json.Marshal(result)
-	if err != nil {
-		*status = http.StatusBadRequest
-		*response = []byte(err.Error())
-		return
-	}
-	*response = rd
-}
-
-func NewPDF(ctx context.Context, wg *sync.WaitGroup, maxInflight int64) *PDF {
-	cf := &PDF{
-		pl: pipeline.NewPipeline(ctx, wg, maxInflight),
-	}
-	ct := configBase.NewFeatureController(cf)
-	ct.FeatureController = ct
-	return cf
+	*response = b
 }
