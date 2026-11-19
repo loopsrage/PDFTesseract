@@ -3,13 +3,14 @@ module Tesseract
 go 1.27
 
 require (
-	github.com/loopsrage/go_mltools v0.0.0-20261118234952-366c93ed539c
-	github.com/loopsrage/gotools v0.0.0-20261118235924-fcc5ee3de972
+	github.com/loopsrage/go_mltools v0.0.0-20261119223828-2437558ccbac
+	github.com/loopsrage/gotools v0.0.0-20261119224140-682ff3f8b9f9
 )
 
 require (
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/buger/jsonparser v1.1.2 // indirect
+	github.com/go-gl/gl v0.0.0-20260331235117-4566fea9a276 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/jolestar/go-commons-pool/v2 v2.1.2 // indirect
 	github.com/klippa-app/go-pdfium v1.21.5 // indirect
