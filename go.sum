@@ -25,10 +25,10 @@ github.com/jolestar/go-commons-pool/v2 v2.1.2/go.mod h1:r4NYccrkS5UqP1YQI1COyTZ9
 github.com/josharian/intern v1.0.0/go.mod h1:5DoeVV0s6jJacbCEi61lwdGj/aVlrQvzHFFd8Hwg//Y=
 github.com/klippa-app/go-pdfium v1.21.5 h1:P6dyZb5NrAau3u3R1HMSxZJtke9TogX+NhaIBkb017o=
 github.com/klippa-app/go-pdfium v1.21.5/go.mod h1:PC+e78dSdPNXc5sHIJqA1ZCZcUd9X1f8bS4k5KHEZwg=
-github.com/loopsrage/go_mltools v0.0.0-20261119223828-2437558ccbac h1:id1oNDQEq73qnVBk5UZAy+12IFTfkMH+47KDZIJmhys=
-github.com/loopsrage/go_mltools v0.0.0-20261119223828-2437558ccbac/go.mod h1:wZu7iMtfoZmRHkPBOG8wUzTtvbIVE66dMNY+uG4Sgns=
-github.com/loopsrage/gotools v0.0.0-20261119224140-682ff3f8b9f9 h1:QcZoOVsU4HaPDFgaAI1yTBswYTY61X3UcXIkRiwACMw=
-github.com/loopsrage/gotools v0.0.0-20261119224140-682ff3f8b9f9/go.mod h1:e7LFPN4Wf+oOEpZ+vta1UZeWHEqzRRmN+zHYC50GV+Q=
+github.com/loopsrage/go_mltools v0.0.0-20261119225250-ae35ff9c93b3 h1:0rBiKNGXH0tVWG9inKdeLOY9vV2p6LZhyfanYd4FyXw=
+github.com/loopsrage/go_mltools v0.0.0-20261119225250-ae35ff9c93b3/go.mod h1:wZu7iMtfoZmRHkPBOG8wUzTtvbIVE66dMNY+uG4Sgns=
+github.com/loopsrage/gotools v0.0.0-20261119225314-186e953f1e9e h1:VJaD0W1n9D5oNQd3uthP4WxTkTjDStTWpzbb/7QQeCY=
+github.com/loopsrage/gotools v0.0.0-20261119225314-186e953f1e9e/go.mod h1:oC/qmMCpQ7TK/9aRnQUOU1pRYk3sRo2iik46VMwlIz8=
 github.com/mailru/easyjson v0.7.7 h1:UGYAvKxe3sBsEDzO8ZeWOSlIQfWFlxbzLZe7hwFURr0=
 github.com/mailru/easyjson v0.7.7/go.mod h1:xzfreul335JAWq5oZzymOObrkdz5UnU4kGfJJLY9Nlc=
 github.com/ollama/ollama v0.40.16 h1:+T7umrchMgduPAk/fTEShqvYZLG5gze+DHB/aI8tPpQ=

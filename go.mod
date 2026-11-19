@@ -3,8 +3,8 @@ module Tesseract
 go 1.27
 
 require (
-	github.com/loopsrage/go_mltools v0.0.0-20261119223828-2437558ccbac
-	github.com/loopsrage/gotools v0.0.0-20261119224140-682ff3f8b9f9
+	github.com/loopsrage/go_mltools v0.0.0-20261119225250-ae35ff9c93b3
+	github.com/loopsrage/gotools v0.0.0-20261119225314-186e953f1e9e
 )
 
 require (
