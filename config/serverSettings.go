@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/loopsrage/go_mltools/ppsclient"
+	"github.com/loopsrage/go_mltools/proceduralphasespace/ppsclient"
 	"github.com/loopsrage/gotools/lib/docpipeline"
 	"github.com/loopsrage/gotools/lib/ocrlib"
 	"github.com/loopsrage/gotools/lib/reflectStruct"
