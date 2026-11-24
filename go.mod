@@ -3,8 +3,8 @@ module Tesseract
 go 1.27
 
 require (
-	github.com/loopsrage/go_mltools v0.0.0-20261119225250-ae35ff9c93b3
-	github.com/loopsrage/gotools v0.0.0-20261119225314-186e953f1e9e
+	github.com/loopsrage/go_mltools v0.0.0-20261124230144-d9819ab02772
+	github.com/loopsrage/gotools v0.0.0-20261124230542-8dedec459e79
 )
 
 require (
@@ -14,6 +14,8 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/jolestar/go-commons-pool/v2 v2.1.2 // indirect
 	github.com/klippa-app/go-pdfium v1.21.5 // indirect
+	github.com/loopsrage/go_torch v0.0.0-20261124225538-ef2b8f25f70e // indirect
+	github.com/loopsrage/tensor v0.0.0-20261124224756-7fcd0ef9ee47 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/ollama/ollama v0.40.16 // indirect
 	github.com/otiai10/gosseract/v2 v2.4.1 // indirect
